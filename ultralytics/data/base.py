@@ -223,9 +223,11 @@ class BaseDataset(Dataset):
                 except Exception as e:
                     LOGGER.warning(f"{self.prefix}WARNING ⚠️ Removing corrupt *.npy image file {fn} due to: {e}")
                     Path(fn).unlink(missing_ok=True)
-                    im = cv2.imread(f)  # BGR
+                    im = cv2.imread(f, cv2.IMREAD_ANYDEPTH| cv2.IMREAD_COLOR) #  BGR
+                    im = im.astype(np.float32)
             else:  # read image
-                im = cv2.imread(f)  # BGR
+                im = cv2.imread(f, cv2.IMREAD_ANYDEPTH| cv2.IMREAD_COLOR)  # BGR
+                im = im.astype(np.float32)
             if im is None:
                 raise FileNotFoundError(f"Image Not Found {f}")
 
@@ -271,7 +273,7 @@ class BaseDataset(Dataset):
         """Save an image as an *.npy file for faster loading."""
         f = self.npy_files[i]
         if not f.exists():
-            np.save(f.as_posix(), cv2.imread(self.im_files[i]), allow_pickle=False)
+            np.save(f.as_posix(), cv2.imread(self.im_files[i], cv2.IMREAD_ANYDEPTH | cv2.IMREAD_COLOR).astype(np.float32), allow_pickle=False)
 
     def check_cache_disk(self, safety_margin=0.5):
         """
@@ -289,7 +291,7 @@ class BaseDataset(Dataset):
         n = min(self.ni, 30)  # extrapolate from 30 random images
         for _ in range(n):
             im_file = random.choice(self.im_files)
-            im = cv2.imread(im_file)
+            im = cv2.imread(random.choice(self.im_files), cv2.IMREAD_ANYDEPTH | cv2.IMREAD_COLOR).astype(np.float32)  # sample image
             if im is None:
                 continue
             b += im.nbytes
