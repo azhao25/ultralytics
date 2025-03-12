@@ -53,7 +53,10 @@ class DetectionTrainer(BaseTrainer):
 
     def preprocess_batch(self, batch):
         """Preprocesses a batch of images by scaling and converting to float."""
-        batch["img"] = batch["img"].to(self.device, non_blocking=True).float() / 255
+        if batch["img"].dtype == np.uint16:
+            batch["img"] = batch["img"].astype(np.float32) / (2**16 - 1)
+        else:
+            batch["img"] = batch["img"].to(self.device, non_blocking=True).float() / 255
         if self.args.multi_scale:
             imgs = batch["img"]
             sz = (
