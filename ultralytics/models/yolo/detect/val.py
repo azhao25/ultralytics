@@ -74,10 +74,7 @@ class DetectionValidator(BaseValidator):
             (dict): Preprocessed batch.
         """
         batch["img"] = batch["img"].to(self.device, non_blocking=True)
-        if batch["img"].dtype == np.uint16:
-            batch["img"] = batch["img"].astype(np.float32) / (2**16 - 1)
-        else:
-            batch["img"] = (batch["img"].half() if self.args.half else batch["img"].float()) / 255
+        batch['img'] = (batch['img'].half() if self.args.half else batch['img'].float()) / (2**16-1)
         for k in ["batch_idx", "cls", "bboxes"]:
             batch[k] = batch[k].to(self.device)
 

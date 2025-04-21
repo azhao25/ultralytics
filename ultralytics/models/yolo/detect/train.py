@@ -97,10 +97,7 @@ class DetectionTrainer(BaseTrainer):
         Returns:
             (dict): Preprocessed batch with normalized images.
         """
-        if batch["img"].dtype == np.uint16:
-            batch["img"] = batch["img"].astype(np.float32) / (2**16 - 1)
-        else:
-            batch["img"] = batch["img"].to(self.device, non_blocking=True).float() / 255
+        batch['img'] = batch['img'].to(self.device, non_blocking=True).float() / (2**16-1)
         if self.args.multi_scale:
             imgs = batch["img"]
             sz = (
